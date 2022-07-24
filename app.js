@@ -51,7 +51,7 @@ app.use('/api/v1/user', userRouter)
 app.use(NotFoundMiddleware)
 app.use(ErrorHandlerMiddleware)
 
-const port = process.env.PORT || 5000
+const port = process.env.APPID || 5000
 
 const start = async () => {
 	try {
