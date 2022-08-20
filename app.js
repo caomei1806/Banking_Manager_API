@@ -51,13 +51,14 @@ app.use('/api/v1/user', userRouter)
 app.use(NotFoundMiddleware)
 app.use(ErrorHandlerMiddleware)
 
-const port = process.env.APPID || 5000
+const port = process.env.PORT || 5001
+const host = process.env.HOST || '127.0.0.1'
 
 const start = async () => {
 	try {
 		await connectDB(process.env.MONGO_URL)
 		app.listen(port, () => {
-			console.log(`Server is listening on port ${port}...`)
+			console.log(`Server is listening on port ${port}... && ${host}`)
 		})
 	} catch (error) {
 		console.log(error)

@@ -75,14 +75,13 @@ const generateBankAccountNo = (branchIdentifierCandidate) => {
 const getAccountNo = async (branchIdentifierCandidate = '000') => {
 	let accountNo = generateBankAccountNo(branchIdentifierCandidate)
 	let isAccountNoAvaiable = await Account.findOne({ accountNo })
-	while (!isAccountNoAvaiable) {
+	while (isAccountNoAvaiable) {
 		const newAccountNo = generateBankAccountNo(branchIdentifierCandidate)
 		const isAvaiable = await Account.findOne({
 			newAccountNo,
 		})
-		if (isAvaiable) {
+		if (!isAvaiable) {
 			accountNo = newAccountNo
-			isAccountNoAvaiable = true
 			break
 		}
 		continue

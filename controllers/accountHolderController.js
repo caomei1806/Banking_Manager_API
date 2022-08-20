@@ -38,6 +38,8 @@ const createAccount = async (req, res) => {
 		throw new CustomError.UnauthenticatedError('Please setup account holder')
 	}
 	const accountNo = await getAccountNo(branchIdentifier)
+	console.log('here here')
+
 	const account = await Account.create({
 		accountNo,
 		currency,
