@@ -1,8 +1,7 @@
+const RABBIT_URL = process.env.AMQP_URL || 'amqp://localhost:5672'
 module.exports = {
 	rabbitMQ: {
-		url: 'amqp://localhost:5672',
-		exchangeName: 'verificationExchange',
+		url: RABBIT_URL,
 		queue: 'user.sign_up_email',
-		routingKey: 'sign_up_email',
 	},
 }

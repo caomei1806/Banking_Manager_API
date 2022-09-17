@@ -42,16 +42,26 @@ const AccountSchema = mongoose.Schema(
 	},
 	{ timestamps: true }
 )
+
+// transaction action on account
+//
 AccountSchema.methods.makeTransaction = async function (
 	transactionType,
 	amount
 ) {
+	// if account is blocked block transfer action
+	//
 	if (this.accountBlocked)
 		return new CustomError.BadRequestError('Unable to complete transaction')
 	console.log(transactionType + ' ' + amount)
+
+	// perform various tranaction actions
+	//
 	switch (transactionType) {
 		case 'withdraw': {
 			console.log(this.balance)
+			// if there is enough money resources perform withdraw transaction
+			//
 			if (this.balance - amount >= 0) {
 				return (this.balance -= amount)
 			} else {
@@ -61,6 +71,8 @@ AccountSchema.methods.makeTransaction = async function (
 		case 'deposit': {
 			return (this.balance += amount)
 		}
+		// if there is enough money resources perform withdraw transaction
+		//
 		case 'transfer': {
 			if (this.balance - amount >= 0) {
 				return (this.balance -= amount)

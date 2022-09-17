@@ -1,4 +1,6 @@
 const BigNumber = require('big-number')
+// check if a foreign bank account number is valid
+// based on the IBAN standard
 const checkIfBankAccountNoIsValid = (accountNo) => {
 	const letterDigitValue = {
 		A: 10,
@@ -28,6 +30,7 @@ const checkIfBankAccountNoIsValid = (accountNo) => {
 		Y: 34,
 		Z: 35,
 	}
+	// remove non numeric characters
 	const accountNoWithoutExtraCharacters = accountNo.replace(
 		/[^0-9a-zA-Z]/gi,
 		''
@@ -35,6 +38,9 @@ const checkIfBankAccountNoIsValid = (accountNo) => {
 	let first4CharsAccountNo = accountNoWithoutExtraCharacters.slice(0, 4)
 	let firstLetterToDigit = letterDigitValue[first4CharsAccountNo[0]]
 	let secondLetterToDigit = letterDigitValue[first4CharsAccountNo[1]]
+	// formatting account number
+	// change first two digits to its assigned value
+	// move changed digits with next two digits to the end
 	const formattedAccountNo =
 		accountNoWithoutExtraCharacters.slice(
 			4,
@@ -43,8 +49,10 @@ const checkIfBankAccountNoIsValid = (accountNo) => {
 		firstLetterToDigit +
 		secondLetterToDigit +
 		first4CharsAccountNo.slice(2, 4)
+	// calculate rest if the division by 97
 	const formattedAccountNoDivided = BigNumber(formattedAccountNo).mod(97)
 
+	// if rest of the division equals 1 then the bank account number is valid
 	if (formattedAccountNoDivided == 1) {
 		console.log('correct')
 		return true

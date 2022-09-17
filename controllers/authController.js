@@ -19,7 +19,7 @@ const register = async (req, res) => {
 		throw new CustomError.BadRequestError('Email already exists')
 	}
 
-	// first registered user is an admin
+	// if there is no users registered yet, the first user will be granted admin permissions
 	const isFirstAccount = (await User.countDocuments({})) === 0
 	const role = isFirstAccount ? 'admin' : 'user'
 
@@ -32,17 +32,22 @@ const register = async (req, res) => {
 
 	const verifyTokenUser = createTokenUser(temporaryUser)
 
+	// create initial token for new user
 	const jwtVerifyToken = createJWT({ payload: { verifyTokenUser } })
 	console.log(jwtVerifyToken)
 
+	// verification info that is passed into email verification system
 	const verifyInfo = {
 		jwtVerifyToken,
 		userEmail: email,
 		userName: name,
 	}
 
+	// perform email verification actions (send verification email to newly registered user)
 	connectRabbitMq(verifyInfo)
 
+	// after an email has been send create user - which is not yet verified
+	// user will be verified after email confirmation
 	const user = await User.create({
 		name,
 		email,
@@ -98,9 +103,13 @@ const login = async (req, res) => {
 
 	res.status(StatusCodes.OK).json({ user: tokenUser })
 }
+
 const logout = async (req, res) => {
 	console.log('pre logout')
+	// delete existing token for user
 	await Token.findOneAndDelete({ user: req.user.userId })
+
+	// make all existing tokens stored in cookies expire
 	res.cookie('accessToken', 'logout', {
 		httpOnly: true,
 		expires: new Date(Date.now()),

@@ -26,6 +26,7 @@ const AccountHolderSchema = mongoose.Schema(
 	},
 	{ timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } }
 )
+// enable account holder to have multiple bank accounts
 AccountHolderSchema.virtual('accounts', {
 	ref: 'Account',
 	localField: '_id',

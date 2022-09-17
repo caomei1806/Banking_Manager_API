@@ -1,3 +1,4 @@
+// generates random string with emplied length
 const generateDigitString = (myLength) => {
 	const chars = '1234567890'
 	const randomArray = Array.from(

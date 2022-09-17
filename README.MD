@@ -1,25 +1,58 @@
 Aplikacja do zarzadzania i tworzenia kont bankowych
 
-1.Uruchom w teminalu w folderze glownym komende - [ npm start ]
+1. Sposob dzialania
+   Aplikacja dla klientow bankowych. Pozwala na:
 
-2.Przejdz pod adres localhost:5000 w wybranej przegladarce.
-W przegladarce wyswietli sie wizualne, interaktywne zobrazowanie API, dzieki ktoremu mozesz sprawdzic jakie zapytania wykonac z jaka zawartoscia.
+   - tworzenie konta uzytkownika oraz nowego posiadacza konta
+   - logowanie i wylogowanie z/do serwisu
+   - zakladanie nowych kont bankowych krajowych i walutowych
+   - obsluga wplat i wyplat
+   - obsluga transferow wewnetrznych wsrod uzytkownikow banku i zewnetrznych
+     Aby miec dostep do funkcji serwisu podanych powyzej, zaczynajac od logowania wymagana jest weryfikacja konta, przez odwiedzenie linku zawartego w przychodzacej wiadomosci email.
 
-3.Wybierz srodowisko z ktorego dokonasz zapytan (Postman lub autorska witryna)
+2. Podzial aplikacji
 
-4.By rozpoczac zarzadzanie aplikacja konieczna jest rejestracja konta - zakladka [ Auth ] - +Register User
+   - controllers:
+     - authController - obsluga rejestracji, logowania i wylogowania,
+     - userController - zwraca obecnie zalogowanego uzytkownika,
+     - accountHolderController - uzupelnienie wymaganych informacji o wlascicielu kont bankowych i obsluga tworzenia kont bankowych krajowych i walutowych,
+     - accountController - obsluga tranzakcji - wplaty, wyplaty, przelewy oraz prezentacja istniejacych kont bankowych
+   - db: tworzenie polaczen z bazami danych
+   - errors: customowe bledy
+   - middleware: obsluga bledow i przekierowan na nieistniejace adresy oraz uwierzytelnianie i autoryzacja uzytkownikow
+   - models: modele oparte na schematach mongoose, opisuja dokumenty mongoDB, ktore beda tworzone w kontrolerach
+   - routers: laczy funkcjonalnosc zawarta w kontrolerach z adresami url
+   - services:
+     - accountNoGenerator - generowanie nowego numeru bankowego
+     - checkIfBankAccountIsValid - sprawdzenie czy zewnetrzny numer bankowy jest prawdziwy
+     - checkIfBankBranchExists - sprawdz czy galaz bankowa istnieje
+     - performExternalTransactions - obsluga tranzakcji przelewow miedzy dwoma kontami
+   - utils:
+     - checkIfItsAccountHolder - sprawdz, czy uzytkownik jest wlascicielem konta bankowego
+       - checkPermissions - sprawdz czy uzytkownik ma dostep do danych (czy jest wlascicielem lub kontem administratora)
+       - generateDigitString - generowanie losowego napisu o podnej dlugosci
+       - jwt - tworzenie tokenu, weryfikacja tokenu i tworzenie cookies zawierajacych tokeny
 
-5. Nastepnie aplikacja łaczy sie z mikroserwisem, ktory sluzy ze wysylanie maili - w tym przypadku potwierdzajacym rejestracje.
+3. Uruchomienie srodowiska
+   I. Aplikacja uruchamiana w kontenerach dockerowych.
+   Uruchamiane sa wszystkie serwisy polaczone w aplikacje (zawarte w pliku docker-compose.yml)
+   By uruchomic aplikacje wymagana jest instalacja:
 
-6. Jezeli uda Ci sie zweryfikowac konto przez podany email to mozesz korzystać z dalszych opcji.
+   - docker
+   - docker compose
+   - node
 
-7. Aby móc zalożyć nowy rachunek (konto) bankowe konieczne jest uzupełnienie danych o posiadaczu konta.
+   1. Przejdz do lokalizacji w ktorej znajduje sie plik docker-compose.yml
+   2. Wprowadz komende [ docker compose up ]
+      Poczekaj az wszystkie kontenery sie wybuduja i aplikacje zaczna dzialac
+      (pojawia sie komunikaty 'Server is listening on port ... ').
+      Aplikacje domyslnie uruchamiane sa w trybie dewelopera i mozliwe jest przelaczenia na tryb produkcyjny, przez zmiane przypisanej wartosci zmiennej srodowiskowej NODE_ENV na production.
 
-8. Bank branches - odzzialy bankowe sa z gory zadeklarowane, nie mozna zalozyc konta z blednym oddzialem. Istnieja brancze o identyfikatorach:
-   720, 468, 620, 711, 371, 000 - bank centralny, uzywane przy zakladaniu kont online
+   II. Aplikacja uruchamiana bez dockera (uruchamia wylacznie mikroserwis do obslugi kont bankowych. By podejmowal jakies akcje musisz uruchomic reszte srodowisk oraz stworzyc dockerowy kontener rabbitmq,
+   see: https://cloudinfrastructureservices.co.uk/create-rabbitmq-docker-container-image/ )
 
-9. Drogi:
-   [Account Holder] +Get All Account Holders With Account's Statistics
-   są dostepnę wyładnie dla kont [ admin ] - obecnie pierwsze zalozone konto uzytkownika, lub mozna nadac role administratora manualnie
+   Przejdz do folderu account-manager2 i uruchom komende [ npm start ]
 
-10. Wszystkie requesty oprocz [register & login], wygeneruja pozytywna odpowiedz tylko jezeli jestes w sesji - jestes zalogowany.
+Jesli aplikacja uruchamiana jest w trybie dewelopera lub bez uzycia kontenerow docker mozliwe jest wykonywanie zapytan np. w aplikacji postman pod adresem: http://localhost:5000/api/v1.
+
+Dokumentacja serwisu, z potrzebnymi informacjami do wykonywania zapytan dostepna jest pod adresem http://localhost:5000

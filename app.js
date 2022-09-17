@@ -35,7 +35,11 @@ app.use(
 	})
 )
 app.use(helmet())
-app.use(cors())
+const corsOptions = {
+	origin: 'http://localhost:3001',
+	credentials: true,
+}
+app.use(cors(corsOptions))
 app.use(xss())
 app.use(mongoSanitize())
 
@@ -52,13 +56,12 @@ app.use(NotFoundMiddleware)
 app.use(ErrorHandlerMiddleware)
 
 const port = process.env.PORT || 5001
-const host = process.env.HOST || '127.0.0.1'
 
 const start = async () => {
 	try {
 		await connectDB(process.env.MONGO_URL)
 		app.listen(port, () => {
-			console.log(`Server is listening on port ${port}... && ${host}`)
+			console.log(`Server is listening on port ${port}...`)
 		})
 	} catch (error) {
 		console.log(error)

@@ -8,6 +8,9 @@ const {
 	performExternalTransaction,
 } = require('../services/performExternalTransaction')
 const checkIfBankAccountNoIsValid = require('../services/checkIfBankAccountNoIsValid')
+const { ObjectId } = require('mongodb')
+
+// returns all bank accounts or ones that match filter option
 const getAllAccounts = async (req, res) => {
 	const { filterKey, filterOptions } = req.query
 	const accounts = await Account.find({ [filterKey]: [filterOptions] })
@@ -43,6 +46,9 @@ const makeTransactionOnAccount = async (req, res) => {
 		currentAccountHolder,
 		account.accountHolder
 	)
+	if (!amount) {
+		throw new CustomError.BadRequestError('Please enter transfer amount')
+	}
 	//
 	// declere balance varaiable to alter it depending on the transaction type
 	let currentBalance
@@ -73,14 +79,18 @@ const makeTransactionOnAccount = async (req, res) => {
 				throw new CustomError.BadRequestError('Account Number not valid')
 			}
 		}
+
 		// create transaction adnotation
 		const transferAction = await Transaction.create({
 			title: transactionTitle,
 			action: transactionType,
 			amount,
 			account: account._id,
-			receiverAccount: receiverAccount ? receiverAccountNo : receiverAccountNo,
+			receiverAccount: receiverAccount
+				? receiverAccount._id
+				: receiverAccount._id,
 		})
+
 		// get current balance by making transaction on the model document
 		currentBalance = await account.makeTransaction(
 			transactionType,
@@ -93,8 +103,10 @@ const makeTransactionOnAccount = async (req, res) => {
 				'deposit',
 				Number(amount)
 			)
+
 			// create transaction on the receiver's end
 			performExternalTransaction(transferAction)
+
 			// update receiver's balance
 			receiverAccount.balance = Number(receiverAccountBalance)
 			receiverAccount.save()
